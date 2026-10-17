@@ -1,112 +1,68 @@
 import json
 import requests
 from datetime import datetime
-import urllib.parse
+import pandas as pd
 import time
 
-def get_via_proxy(url):
-    """使用国内/免费中转代理请求，绕过海外 IP 限制"""
-    # 使用 allorigins 和 corsproxy 两个中转站
-    proxies = [
-        f"https://api.allorigins.win/raw?url={urllib.parse.quote(url)}",
-        f"https://corsproxy.io/?{urllib.parse.quote(url)}"
-    ]
-    for p in proxies:
-        try:
-            r = requests.get(p, timeout=15)
-            if r.status_code == 200 and r.text.startswith('{'):
-                return r.json()
-        except:
-            continue
-    return None
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+}
 
-def fetch_ssq():
-    url = "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=10"
-    res = get_via_proxy(url)
-    data = []
-    if res and 'result' in res:
-        for item in res['result']:
-            data.append({
-                "issue": item['code'],
-                "red": [int(x) for x in item['red'].split(',')],
-                "blue": int(item['blue'])
-            })
-    return data
-
-def fetch_dlt():
-    url = "https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=85&provinceId=0&pageSize=10&isVerify=1&pageNo=1"
-    res = get_via_proxy(url)
-    data = []
-    if res and 'value' in res and 'list' in res['value']:
-        for item in res['value']['list']:
-            nums = [int(x) for x in item['lotteryDrawResult'].strip().split()]
-            data.append({
-                "issue": item['lotteryDrawNum'],
-                "front": nums[:5],
-                "back": nums[5:]
-            })
-    return data
-
-def fetch_d3():
-    url = "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=3d&issueCount=10"
-    res = get_via_proxy(url)
-    data = []
-    if res and 'result' in res:
-        for item in res['result']:
-            data.append({
-                "issue": item['code'],
-                "digits": [int(x) for x in item['red'].split(',')]
-            })
-    return data
-
-def fetch_p3():
-    url = "https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=35&provinceId=0&pageSize=10&isVerify=1&pageNo=1"
-    res = get_via_proxy(url)
-    data = []
-    if res and 'value' in res and 'list' in res['value']:
-        for item in res['value']['list']:
-            data.append({
-                "issue": item['lotteryDrawNum'],
-                "digits": [int(x) for x in item['lotteryDrawResult'].strip().split()]
-            })
-    return data
-
-def fetch_p5():
-    url = "https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=350133&provinceId=0&pageSize=10&isVerify=1&pageNo=1"
-    res = get_via_proxy(url)
-    data = []
-    if res and 'value' in res and 'list' in res['value']:
-        for item in res['value']['list']:
-            data.append({
-                "issue": item['lotteryDrawNum'],
-                "digits": [int(x) for x in item['lotteryDrawResult'].strip().split()]
-            })
-    return data
+def fetch_data(url, kind):
+    try:
+        time.sleep(1)
+        # Pandas 直接读取网页中的表格，无视反爬和乱码
+        dfs = pd.read_html(url, encoding='gb2312')
+        df = dfs[0]
+        data = []
+        for _, row in df.head(10).iterrows():
+            issue = str(row[0]) # 期号
+            if kind == 'ssq':
+                data.append({
+                    "issue": issue,
+                    "red": [int(row[i]) for i in range(1, 7)],
+                    "blue": int(row[7])
+                })
+            elif kind == 'dlt':
+                data.append({
+                    "issue": issue,
+                    "front": [int(row[i]) for i in range(1, 6)],
+                    "back": [int(row[i]) for i in range(6, 8)]
+                })
+            elif kind in ['d3', 'p3']:
+                data.append({
+                    "issue": issue,
+                    "digits": [int(row[1]), int(row[2]), int(row[3])]
+                })
+            elif kind == 'p5':
+                data.append({
+                    "issue": issue,
+                    "digits": [int(row[i]) for i in range(1, 6)]
+                })
+        return data
+    except Exception as e:
+        print(f"{kind} 抓取失败: {e}")
+        return []
 
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
-    fetchers = [
-        ("ssq", fetch_ssq),
-        ("dlt", fetch_dlt),
-        ("d3",  fetch_d3),
-        ("p3",  fetch_p3),
-        ("p5",  fetch_p5),
-    ]
+    urls = {
+        "ssq": "https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1",
+        "dlt": "https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1",
+        "d3":  "https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1",
+        "p3":  "https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1",
+        "p5":  "https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1",
+    }
     
-    for key, fetcher in fetchers:
-        try:
-            time.sleep(1) # 间隔一下
-            res = fetcher()
-            data[key] = res
-            print(f"{key}: 成功获取 {len(res)} 条")
-        except Exception as e:
-            data[key] = []
-            print(f"{key} 失败: {e}")
+    for key, url in urls.items():
+        print(f"正在抓取 {key}...")
+        data[key] = fetch_data(url, key)
+        print(f"{key}: 成功获取 {len(data[key])} 条")
             
     with open("data.js", "w", encoding="utf-8") as f:
         f.write("window.caipiaoData = " + json.dumps(data, ensure_ascii=False, indent=2) + ";")
-    print("完成")
+    print("全部完成")
 
 if __name__ == "__main__":
     main()
