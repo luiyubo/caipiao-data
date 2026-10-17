@@ -6,11 +6,11 @@ import time
 import re
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 }
 
-def fetch_500(url, kind):
-    """双色球、大乐透专用（500网稳定接口）"""
+def fetch_ssq_dlt(url, kind):
+    """双色球和大乐透的专用逻辑"""
     try:
         time.sleep(1)
         dfs = pd.read_html(url, encoding='gb2312')
@@ -25,61 +25,65 @@ def fetch_500(url, kind):
                 data.append({"issue": issue, "front": [int(row[i]) for i in range(1, 6)], "back": [int(row[i]) for i in range(6, 8)]})
         return data
     except Exception as e:
-        print(f"500接口 {kind} 失败: {e}")
+        print(f"{kind} 抓取失败: {e}")
         return []
 
-def fetch_sina(api_type, kind):
-    """3D、排三、排五专用（新浪彩票稳定接口）"""
+def fetch_digit_lottery(url, kind):
+    """3D/排三/排五的真实接口与解析逻辑"""
     try:
         time.sleep(1)
-        url = f"https://match.lottery.sina.com.cn/api/v1/lottery/history?type={api_type}&num=10"
-        headers = {
-            "User-Agent": HEADERS["User-Agent"],
-            "Referer": "https://match.lottery.sina.com.cn/"
-        }
-        r = requests.get(url, headers=headers, timeout=15)
-        res = r.json()
+        # 直接请求真实的数据接口
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        r.encoding = 'gb2312'
+        
+        # 用 pandas 直接读取网页中的表格
+        dfs = pd.read_html(r.text)
+        if not dfs: return []
+        df = dfs[0]
+        
         data = []
-        # 解析新浪返回的 JSON
-        if res.get('result') and res['result'].get('status', {}).get('code') == 0:
-            for item in res['result'].get('data', []):
-                issue = item['issue']
-                # openCode 比如 "1 2 3" 或 "1,2,3"
-                code_str = item['openCode']
-                nums = [int(x) for x in re.findall(r'\d+', code_str)]
-                
-                if kind == 'd3' and len(nums) >= 3:
-                    data.append({"issue": issue, "digits": nums[:3]})
-                elif kind == 'p3' and len(nums) >= 3:
-                    data.append({"issue": issue, "digits": nums[:3]})
-                elif kind == 'p5' and len(nums) >= 5:
-                    data.append({"issue": issue, "digits": nums[:5]})
+        for _, row in df.head(10).iterrows():
+            # 3D/排三/排五的第 0 列是期号，第 1 列是开奖号码
+            issue = str(row[0])
+            if not issue.isdigit(): continue
+            
+            code_str = str(row[1])
+            nums = [int(x) for x in re.findall(r'\d', code_str)]
+            
+            if kind == 'd3' and len(nums) >= 3:
+                data.append({"issue": issue, "digits": nums[:3]})
+            elif kind == 'p3' and len(nums) >= 3:
+                data.append({"issue": issue, "digits": nums[:3]})
+            elif kind == 'p5' and len(nums) >= 5:
+                data.append({"issue": issue, "digits": nums[:5]})
         return data
     except Exception as e:
-        print(f"新浪接口 {kind} 失败: {e}")
+        print(f"{kind} 抓取失败: {e}")
         return []
 
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
+    # 双色球、大乐透（保持不变）
     print("正在抓取 ssq...")
-    data["ssq"] = fetch_500("https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1", "ssq")
+    data["ssq"] = fetch_ssq_dlt("https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1", "ssq")
     print(f"ssq: 成功 {len(data['ssq'])} 条")
     
     print("正在抓取 dlt...")
-    data["dlt"] = fetch_500("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1", "dlt")
+    data["dlt"] = fetch_ssq_dlt("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1", "dlt")
     print(f"dlt: 成功 {len(data['dlt'])} 条")
-    
+
+    # ★ 3D、排三、排五：使用真实的 500 彩票网路径和后缀
     print("正在抓取 d3...")
-    data["d3"] = fetch_sina("fc3d", "d3")
+    data["d3"] = fetch_digit_lottery("https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1", "d3")
     print(f"d3: 成功 {len(data['d3'])} 条")
     
     print("正在抓取 p3...")
-    data["p3"] = fetch_sina("pl3", "p3")
+    data["p3"] = fetch_digit_lottery("https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1", "p3")
     print(f"p3: 成功 {len(data['p3'])} 条")
     
     print("正在抓取 p5...")
-    data["p5"] = fetch_sina("pl5", "p5")
+    data["p5"] = fetch_digit_lottery("https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1", "p5")
     print(f"p5: 成功 {len(data['p5'])} 条")
             
     with open("data.js", "w", encoding="utf-8") as f:
