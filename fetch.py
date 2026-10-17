@@ -9,7 +9,6 @@ HEADERS = {
 }
 
 def fetch_with_retry(url, kind, max_retries=3):
-    """带重试机制的抓取函数"""
     for attempt in range(max_retries):
         try:
             time.sleep(3) 
@@ -22,48 +21,39 @@ def fetch_with_retry(url, kind, max_retries=3):
             
             for tr in trs:
                 tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, re.S)
-                if len(tds) < 2: continue
+                if len(tds) < 4: continue
                 
                 cells = [re.sub(r'<[^>]+>', '', td).strip() for td in tds]
-                issue = cells[0]
-                if not issue.isdigit(): continue
+                
+                # ★ 智能识别期号：遍历这行所有单元格，找到第一个长度 >= 5 的纯数字
+                issue_idx = -1
+                issue = ""
+                for i, cell in enumerate(cells):
+                    if cell.isdigit() and len(cell) >= 5:
+                        issue = cell
+                        issue_idx = i
+                        break
+                        
+                if issue_idx == -1: continue # 没找到期号，跳过这行
                 
                 try:
+                    # 以找到的期号为基准，往后顺延提取号码
                     if kind == 'ssq':
-                        data.append({"issue": issue, "red": [int(cells[i]) for i in range(1, 7)], "blue": int(cells[7])})
+                        data.append({"issue": issue, "red": [int(cells[issue_idx+i]) for i in range(1, 7)], "blue": int(cells[issue_idx+7])})
                     elif kind == 'dlt':
-                        data.append({"issue": issue, "front": [int(cells[i]) for i in range(1, 6)], "back": [int(cells[i]) for i in range(6, 8)]})
-                    elif kind == 'd3':
-                        # 3D：在单元格中全局搜索连续3个数字
+                        data.append({"issue": issue, "front": [int(cells[issue_idx+i]) for i in range(1, 6)], "back": [int(cells[issue_idx+i]) for i in range(6, 8)]})
+                    elif kind in ['d3', 'p3', 'p5']:
+                        # 3D/排三/排五：直接全篇搜对应长度的数字
+                        target_len = 5 if kind == 'p5' else 3
                         nums = []
                         for cell in cells:
                             found = [int(x) for x in re.findall(r'\d', cell)]
-                            if len(found) == 3:
+                            if len(found) == target_len:
                                 nums = found
                                 break
-                        if len(nums) == 3:
+                        if len(nums) == target_len:
                             data.append({"issue": issue, "digits": nums})
-                    elif kind == 'p3':
-                        # 排三：全局搜索连续3个数字
-                        nums = []
-                        for cell in cells:
-                            found = [int(x) for x in re.findall(r'\d', cell)]
-                            if len(found) == 3:
-                                nums = found
-                                break
-                        if len(nums) == 3:
-                            data.append({"issue": issue, "digits": nums})
-                    elif kind == 'p5':
-                        # 排五：全局搜索连续5个数字
-                        nums = []
-                        for cell in cells:
-                            found = [int(x) for x in re.findall(r'\d', cell)]
-                            if len(found) == 5:
-                                nums = found
-                                break
-                        if len(nums) == 5:
-                            data.append({"issue": issue, "digits": nums})
-                except:
+                except Exception as e:
                     pass
                     
                 if len(data) >= 10: break
@@ -77,7 +67,6 @@ def fetch_with_retry(url, kind, max_retries=3):
             print(f"{kind} 第 {attempt+1} 次超时/失败: {e}")
             time.sleep(5)
             
-    print(f"{kind} 连续 {max_retries} 次失败，放弃抓取。")
     return []
 
 def main():
