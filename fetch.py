@@ -4,17 +4,14 @@ from datetime import datetime
 import time
 import re
 
-# 加上重试机制的请求头
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-    "Connection": "keep-alive"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 }
 
 def fetch_with_retry(url, kind, max_retries=3):
-    """带重试机制的抓取函数，专治超时"""
+    """带重试机制的抓取函数"""
     for attempt in range(max_retries):
         try:
-            # 每次请求前睡 3 秒，防止被拉黑
             time.sleep(3) 
             r = requests.get(url, headers=HEADERS, timeout=20)
             r.encoding = 'gb2312'
@@ -25,7 +22,7 @@ def fetch_with_retry(url, kind, max_retries=3):
             
             for tr in trs:
                 tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, re.S)
-                if len(tds) < 4: continue
+                if len(tds) < 2: continue
                 
                 cells = [re.sub(r'<[^>]+>', '', td).strip() for td in tds]
                 issue = cells[0]
@@ -37,27 +34,48 @@ def fetch_with_retry(url, kind, max_retries=3):
                     elif kind == 'dlt':
                         data.append({"issue": issue, "front": [int(cells[i]) for i in range(1, 6)], "back": [int(cells[i]) for i in range(6, 8)]})
                     elif kind == 'd3':
-                        nums = [int(x) for x in re.findall(r'\d', cells[2])]
-                        if len(nums) >= 3: data.append({"issue": issue, "digits": nums[:3]})
+                        # 3D：在单元格中全局搜索连续3个数字
+                        nums = []
+                        for cell in cells:
+                            found = [int(x) for x in re.findall(r'\d', cell)]
+                            if len(found) == 3:
+                                nums = found
+                                break
+                        if len(nums) == 3:
+                            data.append({"issue": issue, "digits": nums})
                     elif kind == 'p3':
-                        nums = [int(x) for x in re.findall(r'\d', cells[1])]
-                        if len(nums) >= 3: data.append({"issue": issue, "digits": nums[:3]})
+                        # 排三：全局搜索连续3个数字
+                        nums = []
+                        for cell in cells:
+                            found = [int(x) for x in re.findall(r'\d', cell)]
+                            if len(found) == 3:
+                                nums = found
+                                break
+                        if len(nums) == 3:
+                            data.append({"issue": issue, "digits": nums})
                     elif kind == 'p5':
-                        nums = [int(x) for x in re.findall(r'\d', cells[1])]
-                        if len(nums) >= 5: data.append({"issue": issue, "digits": nums[:5]})
+                        # 排五：全局搜索连续5个数字
+                        nums = []
+                        for cell in cells:
+                            found = [int(x) for x in re.findall(r'\d', cell)]
+                            if len(found) == 5:
+                                nums = found
+                                break
+                        if len(nums) == 5:
+                            data.append({"issue": issue, "digits": nums})
                 except:
                     pass
                     
                 if len(data) >= 10: break
                 
             if len(data) > 0:
-                return data # 抓到数据了，直接返回
+                return data
             else:
                 print(f"{kind} 第 {attempt+1} 次尝试未找到数据，准备重试...")
                 
         except Exception as e:
             print(f"{kind} 第 {attempt+1} 次超时/失败: {e}")
-            time.sleep(5) # 超时了多等一会儿
+            time.sleep(5)
             
     print(f"{kind} 连续 {max_retries} 次失败，放弃抓取。")
     return []
@@ -68,9 +86,9 @@ def main():
     urls = {
         "ssq": "https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1",
         "dlt": "https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1",
-        "d3":  "https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1",
-        "p3":  "https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1",
-        "p5":  "https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1",
+        "d3":  "https://datachart.500.com/sd/history/inc/history.php?limit=10",
+        "p3":  "https://datachart.500.com/pls/history/inc/history.php?limit=10",
+        "p5":  "https://datachart.500.com/plw/history/inc/history.php?limit=10",
     }
     
     for key, url in urls.items():
