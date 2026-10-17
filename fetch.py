@@ -14,7 +14,6 @@ def fetch_page(url):
 
 def parse_500(html, limit=10):
     soup = BeautifulSoup(html, 'html.parser')
-    # 500彩票网的表格通常放在 id="tdata" 的 tbody 里
     tbody = soup.find('tbody', id='tdata')
     trs = tbody.find_all('tr') if tbody else soup.find_all('tr', class_='t_tr1')
     
@@ -22,9 +21,8 @@ def parse_500(html, limit=10):
     for tr in trs[:limit]:
         tds = tr.find_all('td')
         if not tds: continue
-        # 提取所有列的文字，并去掉前后空格
         cells = [td.text.strip() for td in tds]
-        if cells and cells[0].isdigit(): # 确保第一列是纯数字期号
+        if len(cells) > 2: # 确保不是空行
             data.append(cells)
     return data
 
@@ -33,11 +31,14 @@ def fetch_ssq():
     rows = parse_500(html, 10)
     data = []
     for cells in rows:
-        data.append({
-            "issue": cells[0],
-            "red": [int(cells[i]) for i in range(1, 7)],
-            "blue": int(cells[7])
-        })
+        try:
+            # 500网: 第0列是序号，第1列是期号，第2-7列是红球，第8列是蓝球
+            data.append({
+                "issue": cells[1],
+                "red": [int(cells[i]) for i in range(2, 8)],
+                "blue": int(cells[8])
+            })
+        except: pass
     return data
 
 def fetch_dlt():
@@ -45,11 +46,14 @@ def fetch_dlt():
     rows = parse_500(html, 10)
     data = []
     for cells in rows:
-        data.append({
-            "issue": cells[0],
-            "front": [int(cells[i]) for i in range(1, 6)],
-            "back": [int(cells[i]) for i in range(6, 8)]
-        })
+        try:
+            # 500网大乐透: 第1列是期号，第2-6列是前区，第7-8列是后区
+            data.append({
+                "issue": cells[1],
+                "front": [int(cells[i]) for i in range(2, 7)],
+                "back": [int(cells[i]) for i in range(7, 9)]
+            })
+        except: pass
     return data
 
 def fetch_d3():
@@ -57,12 +61,13 @@ def fetch_d3():
     rows = parse_500(html, 10)
     data = []
     for cells in rows:
-        # 3D 的列：期号 | 试机号1 | 试机号2 | 试机号3 | 开奖号1 | 开奖号2 | 开奖号3 ...
-        # 所以开奖号通常在 4,5,6 列 (索引)
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[4]), int(cells[5]), int(cells[6])]
-        })
+        try:
+            # 500网3D: 第1列期号，第2,3,4列是开奖号
+            data.append({
+                "issue": cells[1],
+                "digits": [int(cells[2]), int(cells[3]), int(cells[4])]
+            })
+        except: pass
     return data
 
 def fetch_p3():
@@ -70,10 +75,12 @@ def fetch_p3():
     rows = parse_500(html, 10)
     data = []
     for cells in rows:
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[1]), int(cells[2]), int(cells[3])]
-        })
+        try:
+            data.append({
+                "issue": cells[1],
+                "digits": [int(cells[2]), int(cells[3]), int(cells[4])]
+            })
+        except: pass
     return data
 
 def fetch_p5():
@@ -81,10 +88,12 @@ def fetch_p5():
     rows = parse_500(html, 10)
     data = []
     for cells in rows:
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[i]) for i in range(1, 6)]
-        })
+        try:
+            data.append({
+                "issue": cells[1],
+                "digits": [int(cells[i]) for i in range(2, 7)]
+            })
+        except: pass
     return data
 
 def main():
