@@ -1,100 +1,79 @@
 import json
-import re
 import requests
 from datetime import datetime
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Referer": "https://www.cwl.gov.cn/"
 }
 
-def fetch_page(url):
-    r = requests.get(url, headers=HEADERS, timeout=20)
-    r.encoding = "gb2312"
-    return r.text
-
-def parse_rows(html, limit=10):
-    rows = re.findall(r'<tr class="t_tr1">(.*?)</tr>', html, re.S)
-    result = []
-    for row in rows[:limit]:
-        cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.S)
-        cells = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
-        result.append(cells)
-    return result
-
 def fetch_ssq():
-    html = fetch_page("https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1")
+    """抓取双色球官方 API"""
+    url = "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=10"
+    r = requests.get(url, headers=HEADERS, timeout=15)
+    json_data = r.json()
     data = []
-    for cells in parse_rows(html, 10):
-        if len(cells) < 8: continue
-        data.append({
-            "issue": cells[0],
-            "red": [int(cells[i]) for i in range(1, 7)],
-            "blue": int(cells[7])
-        })
-    return data
-
-def fetch_dlt():
-    html = fetch_page("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1")
-    data = []
-    for cells in parse_rows(html, 10):
-        if len(cells) < 8: continue
-        data.append({
-            "issue": cells[0],
-            "front": [int(cells[i]) for i in range(1, 6)],
-            "back": [int(cells[i]) for i in range(6, 8)]
-        })
+    if json_data.get('result'):
+        for item in json_data['result']:
+            data.append({
+                "issue": item['code'],
+                "red": [int(x) for x in item['red'].split(',')],
+                "blue": int(item['blue'])
+            })
     return data
 
 def fetch_d3():
-    html = fetch_page("https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1")
+    """抓取福彩3D官方 API"""
+    url = "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=3d&issueCount=10"
+    r = requests.get(url, headers=HEADERS, timeout=15)
+    json_data = r.json()
     data = []
-    for cells in parse_rows(html, 10):
-        if len(cells) < 4: continue
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[i]) for i in range(1, 4)]
-        })
+    if json_data.get('result'):
+        for item in json_data['result']:
+            data.append({
+                "issue": item['code'],
+                "digits": [int(x) for x in item['red'].split(',')]
+            })
     return data
 
-def fetch_p3():
-    html = fetch_page("https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1")
+def fetch_sporttery(game_no, is_dlt=False):
+    """抓取体彩官方 API (大乐透/排三/排五)"""
+    url = f"https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo={game_no}&provinceId=0&pageSize=10&isVerify=1&pageNo=1"
+    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.sporttery.cn/"}
+    r = requests.get(url, headers=headers, timeout=15)
+    json_data = r.json()
     data = []
-    for cells in parse_rows(html, 10):
-        if len(cells) < 4: continue
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[i]) for i in range(1, 4)]
-        })
-    return data
-
-def fetch_p5():
-    html = fetch_page("https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1")
-    data = []
-    for cells in parse_rows(html, 10):
-        if len(cells) < 6: continue
-        data.append({
-            "issue": cells[0],
-            "digits": [int(cells[i]) for i in range(1, 6)]
-        })
+    if json_data.get('value') and json_data['value'].get('list'):
+        for item in json_data['value']['list']:
+            issue = item['lotteryDrawNum']
+            res_str = item['lotteryDrawResult'].strip()
+            nums = [int(x) for x in res_str.split()]
+            if is_dlt:
+                data.append({"issue": issue, "front": nums[:5], "back": nums[5:]})
+            else:
+                data.append({"issue": issue, "digits": nums})
     return data
 
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
-    for key, fetcher in [
+    fetchers = [
         ("ssq", fetch_ssq),
-        ("dlt", fetch_dlt),
         ("d3",  fetch_d3),
-        ("p3",  fetch_p3),
-        ("p5",  fetch_p5),
-    ]:
+        ("dlt", lambda: fetch_sporttery("85", is_dlt=True)),
+        ("p3",  lambda: fetch_sporttery("35", is_dlt=False)),
+        ("p5",  lambda: fetch_sporttery("350133", is_dlt=False)),
+    ]
+    
+    for key, fetcher in fetchers:
         try:
             data[key] = fetcher()
-            print(f"{key}: {len(data[key])} 条")
+            print(f"{key}: 成功获取 {len(data[key])} 条")
         except Exception as e:
             data[key] = []
             data[key + "_error"] = str(e)
             print(f"{key} 失败: {e}")
+            
     with open("data.js", "w", encoding="utf-8") as f:
         f.write("window.caipiaoData = " + json.dumps(data, ensure_ascii=False, indent=2) + ";")
     print("完成")
