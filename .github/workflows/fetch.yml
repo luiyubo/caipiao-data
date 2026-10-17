@@ -18,7 +18,8 @@ jobs:
           python-version: '3.11'
       
       - name: 安装依赖
-        run: pip install requests pandas lxml      
+        run: pip install requests pandas lxml beautifulsoup4
+      
       - name: 运行抓取脚本
         run: python fetch.py
       
