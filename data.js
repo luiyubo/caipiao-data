@@ -1,5 +1,5 @@
 window.caipiaoData = {
-  "updateTime": "2026-10-17 07:50:12",
+  "updateTime": "2026-10-17 07:52:07",
   "ssq": [],
   "d3": [],
   "dlt": [],
