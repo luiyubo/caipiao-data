@@ -1,272 +1,272 @@
 window.caipiaoData = {
-  "updateTime": "2026-10-17 10:45:55",
+  "updateTime": "2026-10-17 11:00:55",
   "ssq": [
     {
-      "issue": "2",
+      "issue": "26109",
       "red": [
-        26109,
         9,
         12,
         15,
         26,
-        30
+        30,
+        33
       ],
-      "blue": 33
+      "blue": 6
     },
     {
-      "issue": "2",
+      "issue": "26110",
       "red": [
-        26110,
         2,
         5,
         16,
         19,
-        26
+        26,
+        32
       ],
-      "blue": 32
+      "blue": 14
     },
     {
-      "issue": "2",
+      "issue": "26111",
       "red": [
-        26111,
         6,
         7,
         14,
         22,
-        31
+        31,
+        32
       ],
-      "blue": 32
+      "blue": 5
     },
     {
-      "issue": "2",
+      "issue": "26112",
       "red": [
-        26112,
         1,
         4,
         11,
         12,
-        17
+        17,
+        29
       ],
-      "blue": 29
+      "blue": 11
     },
     {
-      "issue": "2",
+      "issue": "26113",
       "red": [
-        26113,
         3,
         4,
         20,
         24,
-        29
+        29,
+        30
       ],
-      "blue": 30
+      "blue": 11
     },
     {
-      "issue": "2",
+      "issue": "26114",
       "red": [
-        26114,
         7,
         18,
         23,
         24,
-        29
+        29,
+        31
       ],
-      "blue": 31
+      "blue": 10
     },
     {
-      "issue": "2",
+      "issue": "26115",
       "red": [
-        26115,
         4,
         13,
         14,
         18,
-        22
+        22,
+        24
       ],
-      "blue": 24
+      "blue": 3
     },
     {
-      "issue": "2",
+      "issue": "26116",
       "red": [
-        26116,
         10,
         19,
         24,
         27,
-        28
+        28,
+        33
       ],
-      "blue": 33
+      "blue": 12
     },
     {
-      "issue": "2",
+      "issue": "26117",
       "red": [
-        26117,
         4,
         11,
         14,
         22,
-        26
+        26,
+        27
       ],
-      "blue": 27
+      "blue": 4
     },
     {
-      "issue": "2",
+      "issue": "26118",
       "red": [
-        26118,
         5,
         21,
         22,
         23,
-        28
+        28,
+        31
       ],
-      "blue": 31
+      "blue": 14
     }
   ],
   "dlt": [
     {
-      "issue": "2",
+      "issue": "26108",
       "front": [
-        26108,
         1,
         5,
         7,
-        21
+        21,
+        35
       ],
       "back": [
-        35,
-        1
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26109,
-        12,
-        14,
-        16,
-        27
-      ],
-      "back": [
-        34,
+        1,
         4
       ]
     },
     {
-      "issue": "2",
+      "issue": "26109",
       "front": [
-        26110,
+        12,
+        14,
+        16,
+        27,
+        34
+      ],
+      "back": [
+        4,
+        8
+      ]
+    },
+    {
+      "issue": "26110",
+      "front": [
         3,
         24,
         25,
-        26
+        26,
+        35
       ],
       "back": [
-        35,
-        7
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26111,
-        10,
-        11,
-        17,
-        26
-      ],
-      "back": [
-        29,
-        1
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26112,
-        1,
-        3,
-        5,
-        10
-      ],
-      "back": [
-        22,
-        3
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26113,
-        2,
-        4,
-        6,
-        10
-      ],
-      "back": [
-        11,
-        1
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26114,
-        8,
-        12,
-        15,
-        29
-      ],
-      "back": [
-        30,
+        7,
         9
       ]
     },
     {
-      "issue": "2",
+      "issue": "26111",
       "front": [
-        26115,
-        12,
-        20,
-        32,
-        33
-      ],
-      "back": [
-        35,
-        6
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26116,
-        9,
-        18,
-        22,
-        25
-      ],
-      "back": [
-        35,
-        1
-      ]
-    },
-    {
-      "issue": "2",
-      "front": [
-        26117,
-        4,
-        13,
-        19,
+        10,
+        11,
+        17,
+        26,
         29
       ],
       "back": [
-        31,
-        2
+        1,
+        3
+      ]
+    },
+    {
+      "issue": "26112",
+      "front": [
+        1,
+        3,
+        5,
+        10,
+        22
+      ],
+      "back": [
+        3,
+        9
+      ]
+    },
+    {
+      "issue": "26113",
+      "front": [
+        2,
+        4,
+        6,
+        10,
+        11
+      ],
+      "back": [
+        1,
+        10
+      ]
+    },
+    {
+      "issue": "26114",
+      "front": [
+        8,
+        12,
+        15,
+        29,
+        30
+      ],
+      "back": [
+        9,
+        12
+      ]
+    },
+    {
+      "issue": "26115",
+      "front": [
+        12,
+        20,
+        32,
+        33,
+        35
+      ],
+      "back": [
+        6,
+        7
+      ]
+    },
+    {
+      "issue": "26116",
+      "front": [
+        9,
+        18,
+        22,
+        25,
+        35
+      ],
+      "back": [
+        1,
+        10
+      ]
+    },
+    {
+      "issue": "26117",
+      "front": [
+        4,
+        13,
+        19,
+        29,
+        31
+      ],
+      "back": [
+        2,
+        12
       ]
     }
   ],
   "d3": [
     {
-      "issue": "2",
+      "issue": "2026275",
       "digits": [
         2,
         8,
@@ -274,7 +274,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026274",
       "digits": [
         8,
         2,
@@ -282,7 +282,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026273",
       "digits": [
         9,
         0,
@@ -290,7 +290,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026272",
       "digits": [
         0,
         1,
@@ -298,7 +298,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026271",
       "digits": [
         2,
         8,
@@ -306,7 +306,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026270",
       "digits": [
         0,
         8,
@@ -314,7 +314,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026269",
       "digits": [
         3,
         4,
@@ -322,7 +322,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026268",
       "digits": [
         8,
         9,
@@ -330,7 +330,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026267",
       "digits": [
         8,
         5,
@@ -338,7 +338,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "2026266",
       "digits": [
         3,
         4,
@@ -348,7 +348,7 @@ window.caipiaoData = {
   ],
   "p3": [
     {
-      "issue": "2",
+      "issue": "26275",
       "digits": [
         2,
         0,
@@ -356,7 +356,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26274",
       "digits": [
         3,
         6,
@@ -364,7 +364,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26273",
       "digits": [
         7,
         0,
@@ -372,7 +372,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26272",
       "digits": [
         8,
         9,
@@ -380,7 +380,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26271",
       "digits": [
         6,
         2,
@@ -388,7 +388,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26270",
       "digits": [
         6,
         4,
@@ -396,7 +396,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26269",
       "digits": [
         0,
         6,
@@ -404,7 +404,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26268",
       "digits": [
         3,
         0,
@@ -412,7 +412,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26267",
       "digits": [
         2,
         1,
@@ -420,7 +420,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26266",
       "digits": [
         1,
         2,
@@ -430,7 +430,7 @@ window.caipiaoData = {
   ],
   "p5": [
     {
-      "issue": "2",
+      "issue": "26275",
       "digits": [
         2,
         6,
@@ -440,7 +440,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26274",
       "digits": [
         2,
         6,
@@ -450,7 +450,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26273",
       "digits": [
         2,
         6,
@@ -460,7 +460,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26272",
       "digits": [
         2,
         6,
@@ -470,7 +470,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26271",
       "digits": [
         2,
         6,
@@ -480,7 +480,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26270",
       "digits": [
         2,
         6,
@@ -490,7 +490,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26269",
       "digits": [
         2,
         6,
@@ -500,7 +500,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26268",
       "digits": [
         2,
         6,
@@ -510,7 +510,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26267",
       "digits": [
         2,
         6,
@@ -520,7 +520,7 @@ window.caipiaoData = {
       ]
     },
     {
-      "issue": "2",
+      "issue": "26266",
       "digits": [
         2,
         6,
