@@ -95,9 +95,8 @@ def main():
             data[key] = []
             data[key + "_error"] = str(e)
             print(f"{key} 失败: {e}")
-    
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    with open("data.js", "w", encoding="utf-8") as f:
+    f.write("window.caipiaoData = " + json.dumps(data, ensure_ascii=False, indent=2) + ";")
     print("完成")
 
 if __name__ == "__main__":
