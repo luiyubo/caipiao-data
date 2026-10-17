@@ -4,13 +4,14 @@ from datetime import datetime
 import pandas as pd
 import time
 import re
+import io  # ★ 新增：用于修复 pandas 报错
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 }
 
 def fetch_ssq_dlt(url, kind):
-    """双色球、大乐透（使用 newinc/history.php，保持不变）"""
+    """双色球、大乐透（保持不变）"""
     try:
         time.sleep(1)
         dfs = pd.read_html(url, encoding='gb2312')
@@ -29,12 +30,14 @@ def fetch_ssq_dlt(url, kind):
         return []
 
 def fetch_digit_lottery(url, kind):
-    """福彩3D、排列三、排列五（使用真实 inc/history.php 接口）"""
+    """3D、排三、排五：修复 pandas 路径误判问题"""
     try:
         time.sleep(1)
         r = requests.get(url, headers=HEADERS, timeout=15)
         r.encoding = 'gb2312'
-        dfs = pd.read_html(r.text)
+        
+        # ★ 核心修复：用 io.StringIO 包装 HTML 文本
+        dfs = pd.read_html(io.StringIO(r.text))
         if not dfs: return []
         df = dfs[0]
         
@@ -43,7 +46,6 @@ def fetch_digit_lottery(url, kind):
             issue = str(row[0])
             if not issue.isdigit(): continue
             
-            # 3D、排三、排五的开奖号通常在第2列或第3列，我们用正则提取
             nums = []
             for cell in row[1:]:
                 found = [int(x) for x in re.findall(r'\d', str(cell))]
@@ -73,7 +75,7 @@ def main():
     data["dlt"] = fetch_ssq_dlt("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1", "dlt")
     print(f"dlt: 成功 {len(data['dlt'])} 条")
 
-    # ★ 使用刚刚查到的真实接口
+    # ★ 使用确认过的真实接口地址
     print("正在抓取 d3...")
     data["d3"] = fetch_digit_lottery("http://datachart.500.com/sd/history/inc/history.php?limit=10", "d3")
     print(f"d3: 成功 {len(data['d3'])} 条")
