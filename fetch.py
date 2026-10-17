@@ -6,11 +6,11 @@ import time
 import re
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 }
 
 def fetch_ssq_dlt(url, kind):
-    """双色球和大乐透的专用逻辑"""
+    """双色球、大乐透（使用 newinc/history.php，保持不变）"""
     try:
         time.sleep(1)
         dfs = pd.read_html(url, encoding='gb2312')
@@ -29,26 +29,27 @@ def fetch_ssq_dlt(url, kind):
         return []
 
 def fetch_digit_lottery(url, kind):
-    """3D/排三/排五的真实接口与解析逻辑"""
+    """福彩3D、排列三、排列五（使用真实 inc/history.php 接口）"""
     try:
         time.sleep(1)
-        # 直接请求真实的数据接口
         r = requests.get(url, headers=HEADERS, timeout=15)
         r.encoding = 'gb2312'
-        
-        # 用 pandas 直接读取网页中的表格
         dfs = pd.read_html(r.text)
         if not dfs: return []
         df = dfs[0]
         
         data = []
         for _, row in df.head(10).iterrows():
-            # 3D/排三/排五的第 0 列是期号，第 1 列是开奖号码
             issue = str(row[0])
             if not issue.isdigit(): continue
             
-            code_str = str(row[1])
-            nums = [int(x) for x in re.findall(r'\d', code_str)]
+            # 3D、排三、排五的开奖号通常在第2列或第3列，我们用正则提取
+            nums = []
+            for cell in row[1:]:
+                found = [int(x) for x in re.findall(r'\d', str(cell))]
+                if len(found) >= 3:
+                    nums = found
+                    break
             
             if kind == 'd3' and len(nums) >= 3:
                 data.append({"issue": issue, "digits": nums[:3]})
@@ -64,7 +65,6 @@ def fetch_digit_lottery(url, kind):
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
-    # 双色球、大乐透（保持不变）
     print("正在抓取 ssq...")
     data["ssq"] = fetch_ssq_dlt("https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1", "ssq")
     print(f"ssq: 成功 {len(data['ssq'])} 条")
@@ -73,17 +73,17 @@ def main():
     data["dlt"] = fetch_ssq_dlt("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1", "dlt")
     print(f"dlt: 成功 {len(data['dlt'])} 条")
 
-    # ★ 3D、排三、排五：使用真实的 500 彩票网路径和后缀
+    # ★ 使用刚刚查到的真实接口
     print("正在抓取 d3...")
-    data["d3"] = fetch_digit_lottery("https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1", "d3")
+    data["d3"] = fetch_digit_lottery("http://datachart.500.com/sd/history/inc/history.php?limit=10", "d3")
     print(f"d3: 成功 {len(data['d3'])} 条")
     
     print("正在抓取 p3...")
-    data["p3"] = fetch_digit_lottery("https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1", "p3")
+    data["p3"] = fetch_digit_lottery("http://datachart.500.com/pls/history/inc/history.php?limit=10", "p3")
     print(f"p3: 成功 {len(data['p3'])} 条")
     
     print("正在抓取 p5...")
-    data["p5"] = fetch_digit_lottery("https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1", "p5")
+    data["p5"] = fetch_digit_lottery("http://datachart.500.com/plw/history/inc/history.php?limit=10", "p5")
     print(f"p5: 成功 {len(data['p5'])} 条")
             
     with open("data.js", "w", encoding="utf-8") as f:
