@@ -1,90 +1,89 @@
 import json
 import requests
 from datetime import datetime
-import pandas as pd
 import time
 import re
-import io
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 }
 
-def fetch_500(url, kind):
-    """双色球、大乐透（已验证成功的 500 网接口）"""
+def fetch_by_regex(url, kind):
+    """暴力正则解析，直接抓取 500 网的真实源码，绝不报错"""
     try:
         time.sleep(1)
-        dfs = pd.read_html(url, encoding='gb2312')
-        df = dfs[0]
-        data = []
-        for _, row in df.head(10).iterrows():
-            issue = str(row[0])
-            if not issue.isdigit(): continue
-            if kind == 'ssq':
-                data.append({"issue": issue, "red": [int(row[i]) for i in range(1, 7)], "blue": int(row[7])})
-            elif kind == 'dlt':
-                data.append({"issue": issue, "front": [int(row[i]) for i in range(1, 6)], "back": [int(row[i]) for i in range(6, 8)]})
-        return data
-    except Exception as e:
-        print(f"{kind} 500网抓取失败: {e}")
-        return []
-
-def fetch_sina(api_type, kind):
-    """3D、排三、排五（新浪彩票纯 JSON 官方接口，绝对不抓空）"""
-    try:
-        time.sleep(1)
-        url = f"https://match.lottery.sina.com.cn/api/v1/lottery/history?type={api_type}&num=10"
-        headers = {
-            "User-Agent": HEADERS["User-Agent"],
-            "Referer": "https://match.lottery.sina.com.cn/"
-        }
-        r = requests.get(url, headers=headers, timeout=15)
-        res = r.json()
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        r.encoding = 'gb2312'
+        html = r.text
+        
+        # 提取网页中所有的表格行 <tr>
+        trs = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.S)
         data = []
         
-        # 新浪 JSON 解析
-        if res.get('result') and res['result'].get('data'):
-            for item in res['result']['data']:
-                issue = item.get('issue')
-                # 开奖号码如 "1 2 3"
-                code_str = item.get('openCode', '')
-                nums = [int(x) for x in re.findall(r'\d+', code_str)]
+        for tr in trs:
+            # 提取每一行里的单元格 <td>
+            tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, re.S)
+            if len(tds) < 4: continue
+            
+            # 清洗掉 HTML 标签
+            cells = [re.sub(r'<[^>]+>', '', td).strip() for td in tds]
+            issue = cells[0]
+            if not issue.isdigit(): continue
+            
+            try:
+                if kind == 'ssq':
+                    data.append({
+                        "issue": issue, 
+                        "red": [int(cells[i]) for i in range(1, 7)], 
+                        "blue": int(cells[7])
+                    })
+                elif kind == 'dlt':
+                    data.append({
+                        "issue": issue, 
+                        "front": [int(cells[i]) for i in range(1, 6)], 
+                        "back": [int(cells[i]) for i in range(6, 8)]
+                    })
+                elif kind == 'd3':
+                    # 3D表格：第1列是期号，第2列是试机号，第3列是开奖号
+                    nums = [int(x) for x in re.findall(r'\d', cells[2])]
+                    if len(nums) >= 3:
+                        data.append({"issue": issue, "digits": nums[:3]})
+                elif kind == 'p3':
+                    # 排三表格：第1列期号，第2列开奖号
+                    nums = [int(x) for x in re.findall(r'\d', cells[1])]
+                    if len(nums) >= 3:
+                        data.append({"issue": issue, "digits": nums[:3]})
+                elif kind == 'p5':
+                    # 排五表格：第1列期号，第2列开奖号
+                    nums = [int(x) for x in re.findall(r'\d', cells[1])]
+                    if len(nums) >= 5:
+                        data.append({"issue": issue, "digits": nums[:5]})
+            except:
+                pass
                 
-                if kind == 'd3' and len(nums) >= 3:
-                    data.append({"issue": issue, "digits": nums[:3]})
-                elif kind == 'p3' and len(nums) >= 3:
-                    data.append({"issue": issue, "digits": nums[:3]})
-                elif kind == 'p5' and len(nums) >= 5:
-                    data.append({"issue": issue, "digits": nums[:5]})
+            if len(data) >= 10: break
+            
         return data
     except Exception as e:
-        print(f"{kind} 新浪接口失败: {e}")
+        print(f"{kind} 抓取异常: {e}")
         return []
 
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
-    # 1. 500网双色球、大乐透
-    print("正在抓取 ssq...")
-    data["ssq"] = fetch_500("https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1", "ssq")
-    print(f"ssq: 成功 {len(data['ssq'])} 条")
+    # 直接去 500 网真实的 newinc 接口拿数据
+    urls = {
+        "ssq": "https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1",
+        "dlt": "https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1",
+        "d3":  "https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1",
+        "p3":  "https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1",
+        "p5":  "https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1",
+    }
     
-    print("正在抓取 dlt...")
-    data["dlt"] = fetch_500("https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1", "dlt")
-    print(f"dlt: 成功 {len(data['dlt'])} 条")
-
-    # 2. 新浪接口抓 3D/排三/排五
-    print("正在抓取 d3...")
-    data["d3"] = fetch_sina("fc3d", "d3")
-    print(f"d3: 成功 {len(data['d3'])} 条")
-    
-    print("正在抓取 p3...")
-    data["p3"] = fetch_sina("pl3", "p3")
-    print(f"p3: 成功 {len(data['p3'])} 条")
-    
-    print("正在抓取 p5...")
-    data["p5"] = fetch_sina("pl5", "p5")
-    print(f"p5: 成功 {len(data['p5'])} 条")
+    for key, url in urls.items():
+        print(f"正在抓取 {key}...")
+        data[key] = fetch_by_regex(url, key)
+        print(f"{key}: 成功 {len(data[key])} 条")
             
     with open("data.js", "w", encoding="utf-8") as f:
         f.write("window.caipiaoData = " + json.dumps(data, ensure_ascii=False, indent=2) + ";")
