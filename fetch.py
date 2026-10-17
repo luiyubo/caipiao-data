@@ -30,11 +30,13 @@ def fetch_data(url, kind):
                     "back": [int(row[i]) for i in range(6, 8)]
                 })
             elif kind in ['d3', 'p3']:
+                # 3D 和排三，取后面3位开奖号
                 data.append({
                     "issue": issue,
                     "digits": [int(row[1]), int(row[2]), int(row[3])]
                 })
             elif kind == 'p5':
+                # 排五，取后面5位开奖号
                 data.append({
                     "issue": issue,
                     "digits": [int(row[i]) for i in range(1, 6)]
@@ -47,12 +49,13 @@ def fetch_data(url, kind):
 def main():
     data = {"updateTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     
+    # ★ 这里把网址后缀全改成了正确的 3d, p3, p5
     urls = {
         "ssq": "https://datachart.500.com/ssq/history/newinc/history.php?limit=10&sort=1",
         "dlt": "https://datachart.500.com/dlt/history/newinc/history.php?limit=10&sort=1",
-        "d3":  "https://datachart.500.com/sd/history/newinc/history.php?limit=10&sort=1",
-        "p3":  "https://datachart.500.com/pls/history/newinc/history.php?limit=10&sort=1",
-        "p5":  "https://datachart.500.com/plw/history/newinc/history.php?limit=10&sort=1",
+        "d3":  "https://datachart.500.com/3d/history/newinc/history.php?limit=10&sort=1",
+        "p3":  "https://datachart.500.com/p3/history/newinc/history.php?limit=10&sort=1",
+        "p5":  "https://datachart.500.com/p5/history/newinc/history.php?limit=10&sort=1",
     }
     
     for key, url in urls.items():
