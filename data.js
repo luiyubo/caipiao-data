@@ -1,130 +1,13 @@
 window.caipiaoData = {
-  "updateTime": "2026-10-17 05:47:18",
-  "ssq": [
-    {
-      "issue": "2",
-      "red": [
-        26109,
-        9,
-        12,
-        15,
-        26,
-        30
-      ],
-      "blue": 33
-    },
-    {
-      "issue": "2",
-      "red": [
-        26110,
-        2,
-        5,
-        16,
-        19,
-        26
-      ],
-      "blue": 32
-    },
-    {
-      "issue": "2",
-      "red": [
-        26111,
-        6,
-        7,
-        14,
-        22,
-        31
-      ],
-      "blue": 32
-    },
-    {
-      "issue": "2",
-      "red": [
-        26112,
-        1,
-        4,
-        11,
-        12,
-        17
-      ],
-      "blue": 29
-    },
-    {
-      "issue": "2",
-      "red": [
-        26113,
-        3,
-        4,
-        20,
-        24,
-        29
-      ],
-      "blue": 30
-    },
-    {
-      "issue": "2",
-      "red": [
-        26114,
-        7,
-        18,
-        23,
-        24,
-        29
-      ],
-      "blue": 31
-    },
-    {
-      "issue": "2",
-      "red": [
-        26115,
-        4,
-        13,
-        14,
-        18,
-        22
-      ],
-      "blue": 24
-    },
-    {
-      "issue": "2",
-      "red": [
-        26116,
-        10,
-        19,
-        24,
-        27,
-        28
-      ],
-      "blue": 33
-    },
-    {
-      "issue": "2",
-      "red": [
-        26117,
-        4,
-        11,
-        14,
-        22,
-        26
-      ],
-      "blue": 27
-    },
-    {
-      "issue": "2",
-      "red": [
-        26118,
-        5,
-        21,
-        22,
-        23,
-        28
-      ],
-      "blue": 31
-    }
-  ],
-  "dlt": [],
-  "dlt_error": "invalid literal for int() with base 10: '娉ㄦ��'",
+  "updateTime": "2026-10-17 05:59:22",
+  "ssq": [],
+  "ssq_error": "Expecting value: line 1 column 1 (char 0)",
   "d3": [],
+  "d3_error": "Expecting value: line 1 column 1 (char 0)",
+  "dlt": [],
+  "dlt_error": "Expecting value: line 1 column 1 (char 0)",
   "p3": [],
-  "p5": []
+  "p3_error": "Expecting value: line 1 column 1 (char 0)",
+  "p5": [],
+  "p5_error": "Expecting value: line 1 column 1 (char 0)"
 };
