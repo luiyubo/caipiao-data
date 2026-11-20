@@ -1,5 +1,5 @@
 window.caipiaoData = {
-  "updateTime": "2026-11-19 22:21:34",
+  "updateTime": "2026-11-20 21:38:18",
   "ssq": [
     {
       "issue": "26124",
@@ -266,6 +266,14 @@ window.caipiaoData = {
   ],
   "d3": [
     {
+      "issue": "2026310",
+      "digits": [
+        3,
+        1,
+        8
+      ]
+    },
+    {
       "issue": "2026309",
       "digits": [
         1,
@@ -336,17 +344,17 @@ window.caipiaoData = {
         4,
         9
       ]
-    },
-    {
-      "issue": "2026300",
-      "digits": [
-        1,
-        9,
-        0
-      ]
     }
   ],
   "p3": [
+    {
+      "issue": "26310",
+      "digits": [
+        1,
+        6,
+        2
+      ]
+    },
     {
       "issue": "26309",
       "digits": [
@@ -418,17 +426,19 @@ window.caipiaoData = {
         4,
         4
       ]
-    },
-    {
-      "issue": "26300",
-      "digits": [
-        3,
-        9,
-        8
-      ]
     }
   ],
   "p5": [
+    {
+      "issue": "26310",
+      "digits": [
+        2,
+        6,
+        3,
+        1,
+        0
+      ]
+    },
     {
       "issue": "26309",
       "digits": [
@@ -517,16 +527,6 @@ window.caipiaoData = {
         3,
         0,
         1
-      ]
-    },
-    {
-      "issue": "26300",
-      "digits": [
-        2,
-        6,
-        3,
-        0,
-        0
       ]
     }
   ]
