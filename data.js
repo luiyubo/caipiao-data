@@ -1,5 +1,5 @@
 window.caipiaoData = {
-  "updateTime": "2026-11-24 23:35:08",
+  "updateTime": "2026-11-25 22:52:36",
   "ssq": [
     {
       "issue": "26126",
@@ -123,20 +123,6 @@ window.caipiaoData = {
     }
   ],
   "dlt": [
-    {
-      "issue": "26125",
-      "front": [
-        12,
-        13,
-        23,
-        25,
-        29
-      ],
-      "back": [
-        7,
-        10
-      ]
-    },
     {
       "issue": "26126",
       "front": [
@@ -262,9 +248,31 @@ window.caipiaoData = {
         6,
         9
       ]
+    },
+    {
+      "issue": "26135",
+      "front": [
+        1,
+        8,
+        20,
+        24,
+        33
+      ],
+      "back": [
+        3,
+        4
+      ]
     }
   ],
   "d3": [
+    {
+      "issue": "2026315",
+      "digits": [
+        7,
+        6,
+        6
+      ]
+    },
     {
       "issue": "2026314",
       "digits": [
@@ -336,17 +344,17 @@ window.caipiaoData = {
         3,
         2
       ]
-    },
-    {
-      "issue": "2026305",
-      "digits": [
-        2,
-        0,
-        0
-      ]
     }
   ],
   "p3": [
+    {
+      "issue": "26315",
+      "digits": [
+        4,
+        0,
+        2
+      ]
+    },
     {
       "issue": "26314",
       "digits": [
@@ -418,17 +426,19 @@ window.caipiaoData = {
         3,
         2
       ]
-    },
-    {
-      "issue": "26305",
-      "digits": [
-        2,
-        6,
-        0
-      ]
     }
   ],
   "p5": [
+    {
+      "issue": "26315",
+      "digits": [
+        2,
+        6,
+        3,
+        1,
+        5
+      ]
+    },
     {
       "issue": "26314",
       "digits": [
@@ -517,16 +527,6 @@ window.caipiaoData = {
         3,
         0,
         6
-      ]
-    },
-    {
-      "issue": "26305",
-      "digits": [
-        2,
-        6,
-        3,
-        0,
-        5
       ]
     }
   ]
